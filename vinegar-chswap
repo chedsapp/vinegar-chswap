@@ -1,0 +1,32 @@
+#!/bin/bash
+PFX="$HOME/.var/app/org.vinegarhq.Vinegar/data/vinegar/prefixes/studio"
+KEY="HKCU\Software\ROBLOX Corporation\Environments\RobloxStudio\Channel"
+VAL="www.roblox.com"
+ARG="$1"
+CHAN=""
+
+if [ -z "$ARG" ]; then
+  echo "Error: No channel." >&2
+  echo "Usage: $(basename $0) <channel | -p | -sa>" >&2
+  echo "  -p:  production" >&2
+  echo "  -sa: zserverauthoritycoreapi-earlyaccess" >&2
+  exit 1
+fi
+
+case "$ARG" in
+  -p) CHAN="production" ;;
+  -sa) CHAN="zserverauthoritycoreapi-earlyaccess" ;;
+  *) CHAN="$ARG" ;;
+esac
+
+echo "Setting channel to: $CHAN"
+
+flatpak run --env=WINEPREFIX="$PFX" --command=wine org.vinegarhq.Vinegar reg add "$KEY" /v "$VAL" /t REG_SZ /d "$CHAN" /f
+
+if [ $? -eq 0 ]; then
+  echo "Success!"
+else
+  echo "Error: Command failed." >&2
+  exit 1
+fi
+
